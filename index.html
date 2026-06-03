@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dwiska Hotel — Learning Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#080E14;
+  min-height:100vh;
+  color:#fff;
+  overflow-x:hidden;
+}
+
+/* ══════════════════════════════
+   BACKGROUND LAYERS
+══════════════════════════════ */
+.bg-layer{position:fixed;inset:0;pointer-events:none;z-index:0;}
+
+/* noise texture */
+.bg-noise{
+  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size:200px 200px;
+}
+
+/* radial gradient bg */
+.bg-grad{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(20,40,80,.8) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 85% 80%, rgba(10,50,45,.5) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 10% 90%, rgba(60,35,5,.3) 0%, transparent 50%),
+    #080E14;
+}
+
+/* animated star grid */
+.bg-grid{
+  position:fixed;inset:0;z-index:0;
+  background-image:
+    linear-gradient(rgba(201,168,76,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,.04) 1px, transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 80%);
+}
+
+/* floating particles */
+.particles{position:fixed;inset:0;z-index:0;overflow:hidden;}
+.particle{
+  position:absolute;border-radius:50%;
+  background:rgba(201,168,76,.5);
+  animation:float linear infinite;
+}
+@keyframes float{
+  0%{transform:translateY(100vh) scale(0);opacity:0;}
+  10%{opacity:1;}
+  90%{opacity:.3;}
+  100%{transform:translateY(-10vh) scale(1);opacity:0;}
+}
+
+/* ══════════════════════════════
+   LAYOUT
+══════════════════════════════ */
+.portal{
+  position:relative;z-index:10;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;
+  padding:0 24px 60px;
+}
+
+/* ══════════════════════════════
+   TOP BAR
+══════════════════════════════ */
+.topbar{
+  width:100%;max-width:1000px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px 0 0;
+  margin-bottom:0;
+}
+.tb-left{display:flex;align-items:center;gap:8px;}
+.tb-logo-mark{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(201,168,76,.3),rgba(201,168,76,.1));
+  border:1px solid rgba(201,168,76,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+}
+.tb-brand{font-size:13px;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:.3px;}
+.tb-right{display:flex;align-items:center;gap:16px;}
+.tb-time{
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:rgba(255,255,255,.3);letter-spacing:1px;
+}
+.tb-pill{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);
+  border-radius:20px;padding:4px 10px;
+  font-size:10px;color:rgba(34,197,94,.8);letter-spacing:.5px;
+}
+.tb-dot{width:5px;height:5px;border-radius:50%;background:#22C55E;animation:p 2s infinite;}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* ══════════════════════════════
+   HERO
+══════════════════════════════ */
+.hero{
+  text-align:center;
+  padding:72px 0 56px;
+  max-width:700px;
+  width:100%;
+}
+
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  margin-bottom:24px;
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(201,168,76,.7);
+}
+.hero-eyebrow::before,.hero-eyebrow::after{
+  content:'';width:32px;height:1px;background:rgba(201,168,76,.4);
+}
+
+.hero-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(52px,10vw,90px);
+  font-weight:700;line-height:.95;
+  letter-spacing:-1px;
+  margin-bottom:6px;
+}
+.hero-title .t1{
+  display:block;
+  background:linear-gradient(135deg,#E8D5A0 0%,#C9A84C 40%,#F0E0B0 70%,#C9A84C 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-title .t2{
+  display:block;
+  color:rgba(255,255,255,.92);
+  font-style:italic;font-weight:400;
+  font-size:clamp(40px,8vw,72px);
+}
+
+.hero-divider{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  margin:20px auto 22px;
+}
+.hd-line{width:48px;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.4));}
+.hd-line.r{background:linear-gradient(90deg,rgba(201,168,76,.4),transparent);}
+.hd-diamond{
+  width:6px;height:6px;background:#C9A84C;
+  transform:rotate(45deg);opacity:.7;
+}
+
+.hero-sub{
+  font-size:14px;color:rgba(255,255,255,.35);
+  line-height:1.7;margin-bottom:10px;
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;font-size:18px;
+}
+.hero-location{
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,.2);
+}
+
+/* ══════════════════════════════
+   CARDS
+══════════════════════════════ */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:18px;
+  width:100%;max-width:760px;
+  margin-bottom:48px;
+}
+
+.sys-card{
+  position:relative;overflow:hidden;
+  border-radius:24px;
+  padding:36px 32px 32px;
+  cursor:pointer;text-decoration:none;
+  display:flex;flex-direction:column;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;
+  group:true;
+}
+.sys-card:hover{transform:translateY(-8px) scale(1.01);}
+
+/* PMS */
+.card-pms{
+  background:linear-gradient(145deg,
+    rgba(15,25,45,.98) 0%,
+    rgba(22,38,65,.95) 50%,
+    rgba(15,25,45,.98) 100%);
+  border:1px solid rgba(201,168,76,.15);
+  box-shadow:
+    0 4px 24px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(201,168,76,.08);
+}
+.card-pms:hover{
+  border-color:rgba(201,168,76,.35);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.6),
+    0 0 0 1px rgba(201,168,76,.2),
+    0 0 80px rgba(201,168,76,.04),
+    inset 0 1px 0 rgba(201,168,76,.15);
+}
+
+/* HK */
+.card-hk{
+  background:linear-gradient(145deg,
+    rgba(6,20,18,.98) 0%,
+    rgba(10,40,36,.95) 50%,
+    rgba(6,20,18,.98) 100%);
+  border:1px solid rgba(29,158,117,.15);
+  box-shadow:
+    0 4px 24px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(29,158,117,.08);
+}
+.card-hk:hover{
+  border-color:rgba(29,158,117,.35);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.6),
+    0 0 0 1px rgba(29,158,117,.2),
+    0 0 80px rgba(29,158,117,.04),
+    inset 0 1px 0 rgba(29,158,117,.15);
+}
+
+/* card top accent */
+.sys-card::before{
+  content:'';position:absolute;
+  top:0;left:24px;right:24px;height:1px;
+  border-radius:0 0 4px 4px;
+  transition:opacity .3s;
+}
+.card-pms::before{background:linear-gradient(90deg,transparent,rgba(201,168,76,.6),transparent);}
+.card-hk::before{background:linear-gradient(90deg,transparent,rgba(29,158,117,.6),transparent);}
+
+/* card inner glow */
+.sys-card::after{
+  content:'';position:absolute;inset:0;
+  border-radius:24px;pointer-events:none;
+  opacity:0;transition:opacity .4s;
+}
+.card-pms::after{background:radial-gradient(circle at 30% 0%,rgba(201,168,76,.06) 0%,transparent 60%);}
+.card-hk::after{background:radial-gradient(circle at 30% 0%,rgba(29,158,117,.06) 0%,transparent 60%);}
+.sys-card:hover::after{opacity:1;}
+
+/* card icon */
+.c-icon-wrap{
+  width:56px;height:56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;margin-bottom:20px;
+  position:relative;
+}
+.card-pms .c-icon-wrap{
+  background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));
+  border:1px solid rgba(201,168,76,.2);
+  box-shadow:0 0 20px rgba(201,168,76,.08);
+}
+.card-hk .c-icon-wrap{
+  background:linear-gradient(135deg,rgba(29,158,117,.15),rgba(29,158,117,.05));
+  border:1px solid rgba(29,158,117,.2);
+  box-shadow:0 0 20px rgba(29,158,117,.08);
+}
+
+/* card label */
+.c-label{
+  font-size:9px;letter-spacing:2.5px;text-transform:uppercase;
+  font-weight:600;margin-bottom:8px;
+}
+.card-pms .c-label{color:rgba(201,168,76,.6);}
+.card-hk  .c-label{color:rgba(93,202,165,.6);}
+
+/* card title */
+.c-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:26px;font-weight:700;
+  color:rgba(255,255,255,.92);
+  line-height:1.15;margin-bottom:10px;
+  letter-spacing:-.2px;
+}
+
+/* card desc */
+.c-desc{
+  font-size:12px;color:rgba(255,255,255,.3);
+  line-height:1.7;margin-bottom:22px;flex:1;
+}
+
+/* features */
+.c-feats{
+  display:flex;flex-direction:column;gap:5px;
+  margin-bottom:24px;padding:14px 0;
+  border-top:1px solid rgba(255,255,255,.05);
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.c-feat{
+  display:flex;align-items:center;gap:8px;
+  font-size:11px;color:rgba(255,255,255,.35);
+}
+.c-feat-dot{
+  width:3px;height:3px;border-radius:50%;flex-shrink:0;
+}
+.card-pms .c-feat-dot{background:rgba(201,168,76,.6);}
+.card-hk  .c-feat-dot{background:rgba(93,202,165,.6);}
+
+/* enter button */
+.c-enter{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 18px;border-radius:12px;
+  font-size:12px;font-weight:600;letter-spacing:.5px;
+  text-transform:uppercase;transition:all .25s;margin-top:8px;
+}
+.card-pms .c-enter{
+  background:linear-gradient(135deg,rgba(201,168,76,.12),rgba(201,168,76,.06));
+  border:1px solid rgba(201,168,76,.25);color:rgba(201,168,76,.8);
+}
+.card-hk .c-enter{
+  background:linear-gradient(135deg,rgba(29,158,117,.12),rgba(29,158,117,.06));
+  border:1px solid rgba(29,158,117,.25);color:rgba(93,202,165,.8);
+}
+.card-pms:hover .c-enter{
+  background:linear-gradient(135deg,#C9A84C,#E5C97A);
+  border-color:transparent;color:#0D1B2A;box-shadow:0 4px 20px rgba(201,168,76,.3);
+}
+.card-hk:hover .c-enter{
+  background:linear-gradient(135deg,#1D9E75,#2DC98E);
+  border-color:transparent;color:#fff;box-shadow:0 4px 20px rgba(29,158,117,.3);
+}
+.c-arrow{
+  display:flex;align-items:center;gap:4px;
+  font-size:16px;transition:transform .25s;
+}
+.sys-card:hover .c-arrow{transform:translateX(5px);}
+
+/* ══════════════════════════════
+   ACCOUNTS PANEL
+══════════════════════════════ */
+.acc-panel{
+  width:100%;max-width:760px;
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:20px;
+  padding:28px 32px;
+  margin-bottom:48px;
+  position:relative;overflow:hidden;
+}
+.acc-panel::before{
+  content:'';position:absolute;
+  top:0;left:32px;right:32px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);
+}
+.acc-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;
+}
+.acc-head-title{
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,.2);
+}
+.acc-head-note{
+  font-size:10px;color:rgba(255,255,255,.15);font-style:italic;
+}
+.acc-cols{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;
+}
+.acc-col{
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.04);
+  border-radius:14px;padding:16px 18px;
+}
+.acc-col-head{
+  display:flex;align-items:center;gap:6px;
+  margin-bottom:12px;
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:600;
+}
+.acc-col-dot{
+  width:6px;height:6px;border-radius:50%;
+}
+.pms-dot{background:#C9A84C;}
+.hk-dot{background:#2DC98E;}
+.acc-col-label.pms{color:rgba(201,168,76,.6);}
+.acc-col-label.hk{color:rgba(45,201,142,.6);}
+.acc-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);
+}
+.acc-row:last-child{border-bottom:none;}
+.acc-role{font-size:11px;color:rgba(255,255,255,.25);}
+.acc-cred{
+  font-family:'DM Mono',monospace;font-size:10px;
+  color:rgba(255,255,255,.35);
+  background:rgba(255,255,255,.04);
+  padding:2px 8px;border-radius:6px;
+  border:1px solid rgba(255,255,255,.05);
+}
+
+/* ══════════════════════════════
+   FOOTER
+══════════════════════════════ */
+.footer{
+  text-align:center;
+  position:relative;z-index:10;
+}
+.footer-div{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  margin-bottom:20px;
+}
+.fdl{width:60px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1));}
+.fdl.r{background:linear-gradient(90deg,rgba(255,255,255,.1),transparent);}
+.fdd{width:4px;height:4px;background:rgba(201,168,76,.4);transform:rotate(45deg);}
+.f-by{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.15);margin-bottom:6px;}
+.f-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:20px;font-weight:600;font-style:italic;
+  color:rgba(201,168,76,.5);
+  letter-spacing:.3px;margin-bottom:8px;
+}
+.f-copy{font-size:10px;color:rgba(255,255,255,.1);letter-spacing:.5px;}
+
+/* ══════════════════════════════
+   RESPONSIVE
+══════════════════════════════ */
+@media(max-width:620px){
+  .cards{grid-template-columns:1fr;}
+  .acc-cols{grid-template-columns:1fr;}
+  .hero-title{font-size:48px;}
+  .hero-title .t2{font-size:38px;}
+  .acc-panel{padding:20px 18px;}
+  .topbar{flex-direction:column;gap:10px;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<!-- BG LAYERS -->
+<div class="bg-grad"></div>
+<div class="bg-grid"></div>
+<div class="bg-noise"></div>
+
+<!-- PARTICLES -->
+<div class="particles" id="particles"></div>
+
+<div class="portal">
+
+  <!-- TOP BAR -->
+  <div class="topbar" style="max-width:760px">
+    <div class="tb-left">
+      <div class="tb-logo-mark">🏨</div>
+      <div class="tb-brand">Dwiska Hotel &nbsp;·&nbsp; Learning Portal</div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-time" id="clock">--:--:--</div>
+      <div class="tb-pill"><div class="tb-dot"></div>Systems Online</div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">SMK Dwijendra &nbsp;·&nbsp; Program Keahlian Perhotelan</div>
+
+    <h1 class="hero-title">
+      <span class="t1">Dwiska</span>
+      <span class="t2">Hotel</span>
+    </h1>
+
+    <div class="hero-divider">
+      <div class="hd-line"></div>
+      <div class="hd-diamond"></div>
+      <div class="hd-line r"></div>
+    </div>
+
+    <div class="hero-sub">"Learning hospitality — the professional way"</div>
+    <div class="hero-location" id="date-display">Loading date...</div>
+  </div>
+
+  <!-- SYSTEM CARDS -->
+  <div class="cards">
+
+    <a class="sys-card card-pms" href="dwijendra_edotel_pms.html">
+      <div class="c-icon-wrap">🏨</div>
+      <div class="c-label">Front Office · Module 1–6</div>
+      <div class="c-title">Property Management<br>System</div>
+      <div class="c-desc">Complete front office simulation — reservations, check-in, check-out, billing and hotel reports.</div>
+      <div class="c-feats">
+        <div class="c-feat"><div class="c-feat-dot"></div>Guest Reservation & Confirmation</div>
+        <div class="c-feat"><div class="c-feat-dot"></div>Room Availability & Status Board</div>
+        <div class="c-feat"><div class="c-feat-dot"></div>Check-In / Check-Out Process</div>
+        <div class="c-feat"><div class="c-feat-dot"></div>Billing Statement & Payment</div>
+        <div class="c-feat"><div class="c-feat-dot"></div>Daily & Occupancy Reports</div>
+      </div>
+      <div class="c-enter">
+        <span>Enter PMS System</span>
+        <span class="c-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="sys-card card-hk" href="dwijendra_housekeeping_system.html">
+      <div class="c-icon-wrap">🛏️</div>
+      <div class="c-label">Housekeeping · Module 1–7</div>
+      <div class="c-title">Housekeeping<br>Management System</div>
+      <div class="c-desc">Full housekeeping operations — room tasks, SOP checklists, linen control and PROTA curriculum tracker.</div>
+      <div class="c-feats">
+        <div class="c-feat"><div class="c-feat-dot"></div>Room Status & Task Assignment</div>
+        <div class="c-feat"><div class="c-feat-dot"></div>Interactive SOP Checklists</div>
+        <div class="c-feat"><div class="c-feat-dot"></div>Staff Assignment & Tracking</div>
+        <div class="c-feat"><div class="c-feat-dot"></div>Linen & Inventory Control</div>
+        <div class="c-feat"><div class="c-feat-dot"></div>PROTA Curriculum Progress</div>
+      </div>
+      <div class="c-enter">
+        <span>Enter HK System</span>
+        <span class="c-arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- ACCOUNTS PANEL -->
+  <div class="acc-panel">
+    <div class="acc-head">
+      <div class="acc-head-title">Login Reference — Demo Accounts</div>
+      <div class="acc-head-note">Click a card above to open the system</div>
+    </div>
+    <div class="acc-cols">
+      <div class="acc-col">
+        <div class="acc-col-head">
+          <div class="acc-col-dot pms-dot"></div>
+          <span class="acc-col-label pms">PMS System</span>
+        </div>
+        <div class="acc-row"><span class="acc-role">Administrator</span><span class="acc-cred">admin / admin123</span></div>
+        <div class="acc-row"><span class="acc-role">Front Desk</span><span class="acc-cred">frontdesk / fd2025</span></div>
+        <div class="acc-row"><span class="acc-role">Supervisor</span><span class="acc-cred">supervisor / super2025</span></div>
+        <div class="acc-row"><span class="acc-role">Student</span><span class="acc-cred">student / siswa2025</span></div>
+      </div>
+      <div class="acc-col">
+        <div class="acc-col-head">
+          <div class="acc-col-dot hk-dot"></div>
+          <span class="acc-col-label hk">Housekeeping System</span>
+        </div>
+        <div class="acc-row"><span class="acc-role">HK Manager</span><span class="acc-cred">hkmanager / hk2025</span></div>
+        <div class="acc-row"><span class="acc-role">Floor Supervisor</span><span class="acc-cred">supervisor / super2025</span></div>
+        <div class="acc-row"><span class="acc-role">Room Attendant</span><span class="acc-cred">attendant / ra2025</span></div>
+        <div class="acc-row"><span class="acc-role">Student</span><span class="acc-cred">student / siswa2025</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-div">
+      <div class="fdl"></div><div class="fdd"></div><div class="fdl r"></div>
+    </div>
+    <div class="f-by">Designed & Developed by</div>
+    <div class="f-name">I Wayan Saucha Prayascitta</div>
+    <div class="f-copy">Dwiska Hotel Learning System &copy; 2025 &nbsp;·&nbsp; SMK Dwijendra Denpasar</div>
+  </div>
+
+</div>
+
+<script>
+// ── CLOCK ──
+function tick(){
+  const n=new Date();
+  const t=n.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const d=n.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('clock').textContent=t;
+  document.getElementById('date-display').textContent=d;
+}
+setInterval(tick,1000);tick();
+
+// ── PARTICLES ──
+(function(){
+  const container=document.getElementById('particles');
+  const count=18;
+  for(let i=0;i<count;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    const size=Math.random()*2+1;
+    p.style.cssText=`
+      width:${size}px;height:${size}px;
+      left:${Math.random()*100}%;
+      animation-duration:${Math.random()*20+15}s;
+      animation-delay:${Math.random()*15}s;
+      opacity:${Math.random()*.4+.1};
+    `;
+    container.appendChild(p);
+  }
+})();
+</script>
+</body>
+</html>
